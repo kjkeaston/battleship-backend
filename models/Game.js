@@ -5,7 +5,8 @@ var GameSchema = new Schema({
 	p1_positions: [],
   p2_positions: [],
 	p1_guesses: [],
-  p2_guesses: []
+  p2_guesses: [],
+  game_finished: Boolean
 });
 
 var Game = mongoose.model('Game', GameSchema);
