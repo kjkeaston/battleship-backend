@@ -6,7 +6,7 @@ let app = express();
 let bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-let battleshipRouter = require('./config/routes.js');
+// let battleshipRouter = require('./config/routes.js');
 
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -15,7 +15,7 @@ let battleshipRouter = require('./config/routes.js');
 //   next();
 // });
 
-app.use(battleshipRouter);
+// app.use(battleshipRouter);
 
 let port = process.env.PORT || 3000;
 
