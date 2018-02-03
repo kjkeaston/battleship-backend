@@ -17,6 +17,13 @@ var Game = models.Game;
 //   res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE");
 //   next();
 // });
+app.get('/api/games/:game_id', function show(req, res) {
+  Game.findById(req.params.game_id, function(err, game){
+    if (err) res.send(err);
+    else res.json(game);
+  });
+});
+
 app.post('/api/games', function create(req, res) {
   Game.create(req.body, function(err, game) {
     console.log(req.body);
