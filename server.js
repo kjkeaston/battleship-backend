@@ -5,8 +5,11 @@ let express = require('express');
 let app = express();
 let bodyParser = require('body-parser');
 app.use(bodyParser.json());
-
-// let battleshipRouter = require('./config/routes.js');
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+var models = require('./models');
+var Game = models.Game;
 
 // app.use(function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -14,12 +17,24 @@ app.use(bodyParser.json());
 //   res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE");
 //   next();
 // });
+app.get('/api/games/:game_id', function show(req, res) {
+  Game.findById(req.params.game_id, function(err, game){
+    if (err) res.send(err);
+    else res.json(game);
+  });
+});
 
-// app.use(battleshipRouter);
+app.post('/api/games', function create(req, res) {
+  Game.create(req.body, function(err, game) {
+    console.log(req.body);
+    if (err) res.send(err);
+    else res.json(game);
+  });
+});
 
 let port = process.env.PORT || 3000;
 
 app.listen(port, function() {
   console.log(`Listening on port ${ port }`);
-  console.log("Listening to Battleship-Backend");
+  console.log('Listening to Battleship-Backend');
 });
