@@ -6,6 +6,8 @@ var GameSchema = new Schema({
   p2_positions: [],
 	p1_guesses: [],
   p2_guesses: [],
+  p1_hits: Number,
+  p2_hits: Number,
   computerPlay: Boolean,
   game_finished: Boolean
 });
