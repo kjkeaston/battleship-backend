@@ -93,7 +93,7 @@ function update(req, res) {
     let foundGameP1Pos = foundGame.p1_positions;
     if (err) res.send(err);
     if (guess) {
-      if (isHit(foundGameP2Pos, guess[guess.length-1])) {
+      if (isHit(foundGameP2Pos, guess)) {
         foundGame.p1_guesses = guess
         foundGame.p1_hits = (foundGame.p1_hits + 1)
           // if (foundGame.p1_hits == 6) {
