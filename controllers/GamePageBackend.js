@@ -94,7 +94,14 @@ function update(req, res) {
     if (err) res.send(err);
     if (guess) {
       if (isHit(foundGameP2Pos, guess[guess.length-1])) {
+        foundGame.p1_guesses = guess
+        foundGame.p1_hits = (foundGame.p1_hits + 1)
+          // if (foundGame.p1_hits == 6) {
+          //
+          // }
+        foundGame.save(function(err, saved){
         res.send(true)
+        });
       } else {
         res.send(false)
       }
