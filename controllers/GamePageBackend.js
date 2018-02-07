@@ -59,7 +59,7 @@ function pickRandomElement(possibilitiesArray) {
 function create(req, res) {
   let p2ShipLocations = chooseUniqueShips(10, 6); //the gridSize and shipCount needs to be passed in as variables, currently hardcoded
   let game = new Game ({
-    p2_positions: p2ShipLocations,
+    p1_positions: p2ShipLocations,
     p2_guesses: allRowColumnPossibilities(10),
     computerPlay: false,
     p1_hits: 0,
