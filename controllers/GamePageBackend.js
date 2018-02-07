@@ -57,10 +57,10 @@ function pickRandomElement(possibilitiesArray) {
 
 // Add new Game to DB on 'Enter' click
 function create(req, res) {
-  let p2ShipLocations = chooseUniqueShips(5, 3); //the gridSize and shipCount needs to be passed in as variables, currently hardcoded
+  let p2ShipLocations = chooseUniqueShips(10, 6); //the gridSize and shipCount needs to be passed in as variables, currently hardcoded
   let game = new Game ({
-    p1_positions: req.body.p1_positions,
     p2_positions: p2ShipLocations,
+    p2_guesses: allRowColumnPossibilities(10),
     computerPlay: false,
     p1_hits: 0,
     p2_hits: 0,
@@ -87,15 +87,21 @@ function show(req, res) {
 function update(req, res) {
   let guess = req.body.p1_guesses;
   let p2Play = req.body.computerPlay;
-  
+  console.log(guess)
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
     let foundGameP2Pos = foundGame.p2_positions;
     let foundGameP1Pos = foundGame.p1_positions;
     if (err) res.send(err);
     if (guess) {
-      let oneGuess = JSON.parse(guess);
-      if (isHit(foundGameP2Pos, oneGuess)) {
+      if (isHit(foundGameP2Pos, guess[guess.length-1])) {
+        foundGame.p1_guesses = guess
+        foundGame.p1_hits = (foundGame.p1_hits + 1)
+          // if (foundGame.p1_hits == 6) {
+          //
+          // }
+        foundGame.save(function(err, saved){
         res.send(true)
+        });
       } else {
         res.send(false)
       }
