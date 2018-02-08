@@ -118,10 +118,10 @@ function update(req, res) {
         foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess)
         foundGame.save(function(err, saved){
           console.log(saved.p2_guesses)
-          res.json(true, p2RandomGuess)
+          res.json(p2RandomGuess)
         });
       } else {
-        res.send(false, p2RandomGuess)
+        res.status(200).send(false)
       }
     } else {
       foundGame.p1_positions = req.body.p1_positions,
