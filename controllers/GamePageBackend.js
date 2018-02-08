@@ -55,6 +55,15 @@ function pickRandomElement(possibilitiesArray) {
   return element;
 }
 
+function removeFromP2Guesses(positions, guess) {
+  positions.map((pos, idx) => {
+    if (isEqual(pos, guess)) {
+      positions.splice(idx, 1);
+    }
+  })
+  return positions
+}
+
 // Add new Game to DB on 'Enter' click
 function create(req, res) {
   let p2ShipLocations = chooseUniqueShips(10, 6); //the gridSize and shipCount needs to be passed in as variables, currently hardcoded
@@ -87,7 +96,6 @@ function show(req, res) {
 function update(req, res) {
   let guess = req.body.p1_guesses;
   let p2Play = req.body.computerPlay;
-  console.log(guess)
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
     let foundGameP2Pos = foundGame.p2_positions;
     let foundGameP1Pos = foundGame.p1_positions;
@@ -96,9 +104,6 @@ function update(req, res) {
       if (isHit(foundGameP2Pos, guess)) {
         foundGame.p1_guesses = guess
         foundGame.p1_hits = (foundGame.p1_hits + 1)
-          // if (foundGame.p1_hits == 6) {
-          //
-          // }
         foundGame.save(function(err, saved){
         res.send(true)
         });
@@ -106,12 +111,18 @@ function update(req, res) {
         res.send(false)
       }
     } else if (p2Play) {
-      let p2RandomGuess = pickRandomElement(foundGameP2Pos)
-      let doesHitmatch = isHit(foundGameP1Pos, p2RandomGuess);
+      let p2RandomGuess = pickRandomElement(foundGame.p2_guesses);
+      let doesHitmatch = isHit(foundGame.p1_positions, p2RandomGuess);
       if (doesHitmatch) {
         foundGame.p2_hits = (foundGame.p2_hits + 1);
+        foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess)
+        foundGame.save(function(err, saved){
+          console.log(saved.p2_guesses)
+          res.json(true, p2RandomGuess)
+        });
+      } else {
+        res.send(false, p2RandomGuess)
       }
-      console.log(doesHitmatch);
     } else {
       foundGame.p1_positions = req.body.p1_positions,
       foundGame.save(function(err, saved) {
