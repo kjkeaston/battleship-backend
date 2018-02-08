@@ -57,13 +57,11 @@ function pickRandomElement(possibilitiesArray) {
   return element;
 };
 
-function removeFromP2Guesses(positions, guess) {
-  positions.map((pos, idx) => {
-    if (isEqual(pos, guess)) {
-      positions.splice(idx, 1);
-    };
+function removeFromP2Guesses(guesses, guess) {
+  var filteredGuesses = guesses.filter((eachGuess, idx) => {
+    return !isEqual(eachGuess, guess)
   });
-  return positions
+  return filteredGuesses;
 };
 
 function create(req, res) {// Add new Game to DB on 'Enter' click
@@ -98,6 +96,7 @@ function update(req, res) {
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
     let foundGameP2Pos = foundGame.p2_positions;
     let foundGameP1Pos = foundGame.p1_positions;
+    console.log("All guesses: ", foundGame.p2_guesses);
     if (err) res.send(err);
     if (guess) { // if there is a guess in req.body
       if (isHit(foundGameP2Pos, guess)) { // if the guess matches an element in p2_positions
@@ -111,16 +110,22 @@ function update(req, res) {
       };
     } else if (p2Play) { // triggers p2 turn if req.body includes computerPlay: true
       let p2RandomGuess = pickRandomElement(foundGame.p2_guesses); //selects a random guess for p2
+      console.log("Random guess ", p2RandomGuess)
       let doesHitmatch = isHit(foundGame.p1_positions, p2RandomGuess);
+      console.log(doesHitmatch)
       if (doesHitmatch) { // if the random guess matches p1_positions
         foundGame.p2_hits = (foundGame.p2_hits + 1);
-        foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess); //remove from guesses so the guess will never repeat
+        foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
+        console.log(foundGame.p2_guesses)//remove from guesses so the guess will never repeat
         let response = [p2RandomGuess, 'match']; // match is included currently to differentiate in FE if it was a hit
         foundGame.save(function(err, saved){
           res.json(response);
         });
       } else {
-          res.json(p2RandomGuess);
+          foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
+          foundGame.save(function(err, saved){
+            res.json(p2RandomGuess);
+          });
       };
     } else {
       foundGame.p1_positions = req.body.p1_positions,
