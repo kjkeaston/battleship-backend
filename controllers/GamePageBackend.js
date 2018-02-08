@@ -116,12 +116,12 @@ function update(req, res) {
       if (doesHitmatch) {
         foundGame.p2_hits = (foundGame.p2_hits + 1);
         foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess)
+        let response = [p2RandomGuess, 'match']
         foundGame.save(function(err, saved){
-          console.log(saved.p2_guesses)
-          res.json(true, p2RandomGuess)
+          res.json(response)
         });
       } else {
-        res.send(false, p2RandomGuess)
+          res.json(p2RandomGuess)
       }
     } else {
       foundGame.p1_positions = req.body.p1_positions,
