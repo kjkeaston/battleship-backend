@@ -102,6 +102,15 @@ function locationForShip(length) {
   }
 }
 
+// pseudocode:
+// find location for ship 5
+// add that location to our locations
+// find location for ship 4
+// while that new location intersects w/ ships already there:
+//    find new location
+// add new location to our locations
+// repeat for other lengths
+
 // locationForShip(4) => [ [0,0], [0,1], [0,2], [0,3] ]
 
 function show(req, res) { // select a game by id
