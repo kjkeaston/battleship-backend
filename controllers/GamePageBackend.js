@@ -4,6 +4,7 @@ var Game = models.Game;
 //p2 is the computer
 
 // Get JSON view of all the games currently in DB
+// probably not necessary in production: might make this depend on process.env.NODE_ENV
 function index(req, res) {
   Game.find({}, function(err, game){
     if (err) {
@@ -42,6 +43,7 @@ function isEqual(positions, guess) { // checks the equality of an array with 2 e
 };
 
 function isHit(positionsArray, guess) { // checks if guess is in opposite player's ship positions array
+  // if you wanted, could use positionsArray.any here instead
   for(let i = 0; i < positionsArray.length; i++) {
     let oneItem = positionsArray[i];
     if (isEqual(oneItem, guess)) {
@@ -69,10 +71,10 @@ function create(req, res) {// Add new Game to DB on 'Enter' click
   let game = new Game ({
     p2_positions: p2ShipLocations,
     p2_guesses: allRowColumnPossibilities(10),
-    computerPlay: false,
+    computerPlay: false, // seems superfluous
     p1_hits: 0,
     p2_hits: 0,
-    game_finished: false
+    game_finished: false // seems superfluous
   })
   game.save(function (err, game) {
     if (err) {
@@ -85,8 +87,8 @@ function create(req, res) {// Add new Game to DB on 'Enter' click
 
 function show(req, res) { // select a game by id
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
-    if (err) res.send(err);
-    else res.json(foundGame);
+    if (err) {res.send(err);}
+    else {res.json(foundGame);}
   });
 };
 
