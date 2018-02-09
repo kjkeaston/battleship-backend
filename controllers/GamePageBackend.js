@@ -93,28 +93,27 @@ function show(req, res) { // select a game by id
 };
 
 function update(req, res) {
-  let guess = req.body.p1_guesses;
-  let p2Play = req.body.computerPlay;
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
-    let foundGameP2Pos = foundGame.p2_positions;
-    let foundGameP1Pos = foundGame.p1_positions;
     if (err) {
       res.send(err);
       return;
     }
-    if (guess) { // if there is a guess in req.body
-      if (isHit(foundGameP2Pos, guess)) { // if the guess matches an element in p2_positions
+    let guess = req.body.p1_guesses;
+    let p2Play = req.body.computerPlay;
+    if (guess) { // one guess has been entered
+      let foundGameP2Pos = foundGame.p2_positions;
+      if (isHit(foundGameP2Pos, guess)) { // save the hit
         foundGame.p1_guesses = guess;
         foundGame.p1_hits = (foundGame.p1_hits + 1); // increment p1_hits by 1
         foundGame.save(function(err, saved){
-        res.send(true);
+          res.send(true);
         });
       } else {
         res.send(false);
       };
     } else if (p2Play) { // triggers p2 turn if req.body includes computerPlay: true
       computerGuessHelper(foundGame, res);
-    } else {
+    } else { // when user presses play game button, saves initial positions
       foundGame.p1_positions = req.body.p1_positions,
       foundGame.save(function(err, saved) {
         if(err) { console.log('error', err); }
