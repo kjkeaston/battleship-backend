@@ -81,6 +81,29 @@ function create(req, res) {// Add new Game to DB on 'Enter' click
   });
 };
 
+function locationForShip(length) {
+  let horiz = Math.random() > 0.5; // randomly true or false
+  if (horiz) {
+    let col = Math.floor(Math.random() * (10-length + 1));
+    let row = Math.floor(Math.random() * 10);
+    let ans = [[row, col]];
+    for (let i = 1; i < length; i++) {
+      ans.push([row, col + i])
+    }
+    return ans;
+  } else {
+    let row = Math.floor(Math.random() * (10-length + 1));
+    let col = Math.floor(Math.random() * 10);
+    let ans = [[row, col]];
+    for (let i = 1; i < length; i++) {
+      ans.push([row + i, col])
+    }
+    return ans;
+  }
+}
+
+// locationForShip(4) => [ [0,0], [0,1], [0,2], [0,3] ]
+
 function show(req, res) { // select a game by id
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
     if (err) {res.send(err);}
