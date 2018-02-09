@@ -70,11 +70,7 @@ function create(req, res) {// Add new Game to DB on 'Enter' click
   let p2ShipLocations = chooseUniqueShips(10, 17); // creates ships locations for p2_positions
   let game = new Game ({
     p2_positions: p2ShipLocations,
-    p2_guesses: allRowColumnPossibilities(10),
-    computerPlay: false, // seems superfluous
-    p1_hits: 0,
-    p2_hits: 0,
-    game_finished: false // seems superfluous
+    p2_guesses: allRowColumnPossibilities(10)
   })
   game.save(function (err, game) {
     if (err) {
