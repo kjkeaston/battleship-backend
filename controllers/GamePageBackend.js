@@ -98,8 +98,10 @@ function update(req, res) {
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
     let foundGameP2Pos = foundGame.p2_positions;
     let foundGameP1Pos = foundGame.p1_positions;
-    console.log("All guesses: ", foundGame.p2_guesses);
-    if (err) res.send(err);
+    if (err) {
+      res.send(err);
+      return;
+    }
     if (guess) { // if there is a guess in req.body
       if (isHit(foundGameP2Pos, guess)) { // if the guess matches an element in p2_positions
         foundGame.p1_guesses = guess;
@@ -139,6 +141,12 @@ function update(req, res) {
   });
 };
 
+function computerGuess(req, res) {
+  // do computer guess steps here
+  // generate computer's guess
+  // send back the guess the computer made
+}
+
 function destroy(req, res) {
   Game.findByIdAndRemove(req.params.game_id, function(err, deletedGame) {
     if(err) {
@@ -155,3 +163,4 @@ module.exports.create = create;
 module.exports.show = show;
 module.exports.update = update;
 module.exports.destroy = destroy;
+module.exports.computerGuess = computerGuess;
