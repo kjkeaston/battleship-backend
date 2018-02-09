@@ -1,17 +1,16 @@
 require('dotenv').config();
 
-let express = require('express');
-// db = require('./models'),
-let app = express();
-let bodyParser = require('body-parser');
+const express = require('express');
+// don't leave commented out code
+const app = express();
+const bodyParser = require('body-parser');
 // only need to use bodyParser once
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-let models = require('./models');
-let Game = models.Game;
+const models = require('./models');
 
-let GamesRouter = require('./config/routes.js');
+const GamesRouter = require('./config/routes.js');
 
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -34,7 +33,7 @@ app.options('/*', function(req, res, next){
 app.use(GamesRouter);
 
 
-let port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 app.listen(port, function() {
   console.log(`Listening on port ${ port } - Listening to Battleship-Backend`);
