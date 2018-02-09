@@ -113,24 +113,7 @@ function update(req, res) {
         res.send(false);
       };
     } else if (p2Play) { // triggers p2 turn if req.body includes computerPlay: true
-      let p2RandomGuess = pickRandomElement(foundGame.p2_guesses); //selects a random guess for p2
-      console.log("Random guess ", p2RandomGuess)
-      let doesHitmatch = isHit(foundGame.p1_positions, p2RandomGuess);
-      console.log(doesHitmatch)
-      if (doesHitmatch) { // if the random guess matches p1_positions
-        foundGame.p2_hits = (foundGame.p2_hits + 1);
-        foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
-        console.log(foundGame.p2_guesses)//remove from guesses so the guess will never repeat
-        let response = [p2RandomGuess, 'match']; // match is included currently to differentiate in FE if it was a hit
-        foundGame.save(function(err, saved){
-          res.json(response);
-        });
-      } else {
-          foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
-          foundGame.save(function(err, saved){
-            res.json(p2RandomGuess);
-          });
-      };
+      computerGuessHelper(foundGame, res);
     } else {
       foundGame.p1_positions = req.body.p1_positions,
       foundGame.save(function(err, saved) {
@@ -141,6 +124,26 @@ function update(req, res) {
   });
 };
 
+function computerGuessHelper(foundGame, res) {
+  let p2RandomGuess = pickRandomElement(foundGame.p2_guesses); //selects a random guess for p2
+  console.log("Random guess ", p2RandomGuess)
+  let doesHitmatch = isHit(foundGame.p1_positions, p2RandomGuess);
+  console.log(doesHitmatch)
+  if (doesHitmatch) { // if the random guess matches p1_positions
+    foundGame.p2_hits = (foundGame.p2_hits + 1);
+    foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
+    console.log(foundGame.p2_guesses)//remove from guesses so the guess will never repeat
+    let response = [p2RandomGuess, 'match']; // match is included currently to differentiate in FE if it was a hit
+    foundGame.save(function(err, saved){
+      res.json(response);
+    });
+  } else {
+      foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
+      foundGame.save(function(err, saved){
+        res.json(p2RandomGuess);
+      });
+  };
+}
 function computerGuess(req, res) {
   // do computer guess steps here
   // generate computer's guess
