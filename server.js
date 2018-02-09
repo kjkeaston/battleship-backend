@@ -4,7 +4,7 @@ let express = require('express');
 // db = require('./models'),
 let app = express();
 let bodyParser = require('body-parser');
-app.use(bodyParser.json());
+// only need to use bodyParser once
 app.use(bodyParser.urlencoded({
   extended: true
 }));
