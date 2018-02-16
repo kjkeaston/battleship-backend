@@ -2,14 +2,32 @@ var mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
 var GameSchema = new Schema({
-	p1_positions: [],
-  p2_positions: [],
-	p1_guesses: [],
-  p2_guesses: [],
-  p1_hits: Number,
-  p2_hits: Number,
-  computerPlay: Boolean,
-  game_finished: Boolean
+	playerShipLocations: {
+    type: [[Number, Number]],
+    default: []
+  },
+  computerShipLocations: {
+    type: [[Number, Number]],
+    default: []
+  },
+	playerGuesses: [[Number, Number]],
+  availableGuessesComputer: [[Number, Number]],
+  playerHits: {
+    type: Number,
+    default: 0
+  },
+  computerHits: {
+    type: Number,
+    default: 0
+  },
+  computerTurn: {
+    type: Boolean,
+    default: false
+  },
+  gameFinished: {
+    type: Boolean,
+    default: false
+  }
 });
 
 var Game = mongoose.model('Game', GameSchema);
