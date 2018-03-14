@@ -25,17 +25,17 @@ function allRowColumnPossibilities(gridSize) { // creates all array possibilitie
   return allPossibilities;
 };
 
-function chooseUniqueShips(gridSize, shipCount) { // chooses unique arrays [row, column], loop runs shipCount times
-  let allPossibilities = allRowColumnPossibilities(gridSize);
-  let ships = [];
-  for (let i = 0; i < shipCount; i++) {
-    let randomIdx = Math.floor(Math.random() * allPossibilities.length);
-    element = allPossibilities[randomIdx];
-    ships.push(element);
-    allPossibilities.splice(randomIdx, 1); //cuts element from allPossibilities array so no duplicate ships can be generated
-  };
-  return ships
-};
+// function chooseUniqueShips(gridSize, shipCount) { // chooses unique arrays [row, column], loop runs shipCount times
+//   let allPossibilities = allRowColumnPossibilities(gridSize);
+//   let ships = [];
+//   for (let i = 0; i < shipCount; i++) {
+//     let randomIdx = Math.floor(Math.random() * allPossibilities.length);
+//     element = allPossibilities[randomIdx];
+//     ships.push(element);
+//     allPossibilities.splice(randomIdx, 1); //cuts element from allPossibilities array so no duplicate ships can be generated
+//   };
+//   return ships
+// };
 
 function isEqual(positions, guess) { // checks the equality of an array with 2 elements: [1,2] and [1,2] => true
   return positions[0] === guess[0] && positions[1] === guess[1];
@@ -50,6 +50,72 @@ function isHit(positionsArray, guess) { // checks if guess is in opposite player
   };
   return false
 };
+
+function makeShips(existing, length) {
+  let horizontal = Math.random() > 0.5
+  ship = []
+  if(horizontal) {
+    let col = Math.floor(Math.random() * (10-(length-1)))
+    let row = Math.floor(Math.random() * (10))
+    let start = [row, col];
+    let free = !isHit(existing, start)
+    if(free) {
+      ship.push(start)
+      for(let i = 1; i < length; i++) {
+        let next = [row, col + i];
+        let isFree = !isHit(existing, next)
+        if(isFree) {
+          ship.push(next);
+        } else {
+          return false
+        }
+      }
+      return ship
+    } else {
+      return false
+    }
+  } else {
+      let col = Math.floor(Math.random() * (length))
+      let row = Math.floor(Math.random() * (10 -(length-1)))
+      let start = [row, col];
+      let free = !isHit(existing, start)
+      if(free) {
+        ship.push(start)
+        for(let i = 1; i < length; i++) {
+          let next = [row + i, col];
+          let isFree = !isHit(existing, next)
+          if(isFree) {
+            ship.push(next);
+          } else {
+            return false
+          }
+        }
+        return ship
+      } else {
+        return false
+      }
+    }
+}
+
+  function selectComputerShips() {
+    const shipLengths = [5,4,3,3,2];
+    let placedShips = [];
+    shipLengths.map(ship => {
+      let shipPlaced = false
+      while (!shipPlaced) {
+        let placeShip = makeShips(placedShips, ship);
+        if (placeShip) {
+          placeShip.map(coordinate => {
+            placedShips.push(coordinate);
+          })
+        shipPlaced = true;
+      }
+    }
+  })
+  return placedShips
+
+  }
+  selectComputerShips()
 
 function pickRandomElement(possibilitiesArray) {
   let randomIdx = Math.floor(Math.random() * possibilitiesArray.length);
@@ -66,7 +132,7 @@ function removeFromP2Guesses(guesses, guess) {
 
 function create(req, res) {// Add new Game to DB on 'Enter' click
   let game = new Game ({
-    computerShipLocations: chooseUniqueShips(10, 17),
+    computerShipLocations: selectComputerShips(),
     availableGuessesComputer: allRowColumnPossibilities(10),
   })
   game.save(function (err, game) {
