@@ -25,18 +25,6 @@ function allRowColumnPossibilities(gridSize) { // creates all array possibilitie
   return allPossibilities;
 };
 
-// function chooseUniqueShips(gridSize, shipCount) { // chooses unique arrays [row, column], loop runs shipCount times
-//   let allPossibilities = allRowColumnPossibilities(gridSize);
-//   let ships = [];
-//   for (let i = 0; i < shipCount; i++) {
-//     let randomIdx = Math.floor(Math.random() * allPossibilities.length);
-//     element = allPossibilities[randomIdx];
-//     ships.push(element);
-//     allPossibilities.splice(randomIdx, 1); //cuts element from allPossibilities array so no duplicate ships can be generated
-//   };
-//   return ships
-// };
-
 function isEqual(positions, guess) { // checks the equality of an array with 2 elements: [1,2] and [1,2] => true
   return positions[0] === guess[0] && positions[1] === guess[1];
 };
