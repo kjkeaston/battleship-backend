@@ -25,18 +25,6 @@ function allRowColumnPossibilities(gridSize) { // creates all array possibilitie
   return allPossibilities;
 };
 
-function chooseUniqueShips(gridSize, shipCount) { // chooses unique arrays [row, column], loop runs shipCount times
-  let allPossibilities = allRowColumnPossibilities(gridSize);
-  let ships = [];
-  for (let i = 0; i < shipCount; i++) {
-    let randomIdx = Math.floor(Math.random() * allPossibilities.length);
-    element = allPossibilities[randomIdx];
-    ships.push(element);
-    allPossibilities.splice(randomIdx, 1); //cuts element from allPossibilities array so no duplicate ships can be generated
-  };
-  return ships
-};
-
 function isEqual(positions, guess) { // checks the equality of an array with 2 elements: [1,2] and [1,2] => true
   return positions[0] === guess[0] && positions[1] === guess[1];
 };
@@ -50,6 +38,72 @@ function isHit(positionsArray, guess) { // checks if guess is in opposite player
   };
   return false
 };
+
+function makeShips(existing, length) {
+  let horizontal = Math.random() > 0.5
+  ship = []
+  if(horizontal) {
+    let col = Math.floor(Math.random() * (10-(length-1)))
+    let row = Math.floor(Math.random() * (10))
+    let start = [row, col];
+    let free = !isHit(existing, start)
+    if(free) {
+      ship.push(start)
+      for(let i = 1; i < length; i++) {
+        let next = [row, col + i];
+        let isFree = !isHit(existing, next)
+        if(isFree) {
+          ship.push(next);
+        } else {
+          return false
+        }
+      }
+      return ship
+    } else {
+      return false
+    }
+  } else {
+      let col = Math.floor(Math.random() * (length))
+      let row = Math.floor(Math.random() * (10 -(length-1)))
+      let start = [row, col];
+      let free = !isHit(existing, start)
+      if(free) {
+        ship.push(start)
+        for(let i = 1; i < length; i++) {
+          let next = [row + i, col];
+          let isFree = !isHit(existing, next)
+          if(isFree) {
+            ship.push(next);
+          } else {
+            return false
+          }
+        }
+        return ship
+      } else {
+        return false
+      }
+    }
+}
+
+  function selectComputerShips() {
+    const shipLengths = [5,4,3,3,2];
+    let placedShips = [];
+    shipLengths.map(ship => {
+      let shipPlaced = false
+      while (!shipPlaced) {
+        let placeShip = makeShips(placedShips, ship);
+        if (placeShip) {
+          placeShip.map(coordinate => {
+            placedShips.push(coordinate);
+          })
+        shipPlaced = true;
+      }
+    }
+  })
+  return placedShips
+
+  }
+  selectComputerShips()
 
 function pickRandomElement(possibilitiesArray) {
   let randomIdx = Math.floor(Math.random() * possibilitiesArray.length);
@@ -65,14 +119,9 @@ function removeFromP2Guesses(guesses, guess) {
 };
 
 function create(req, res) {// Add new Game to DB on 'Enter' click
-  let p2ShipLocations = chooseUniqueShips(10, 17); // creates ships locations for p2_positions
   let game = new Game ({
-    p2_positions: p2ShipLocations,
-    p2_guesses: allRowColumnPossibilities(10),
-    computerPlay: false,
-    p1_hits: 0,
-    p2_hits: 0,
-    game_finished: false
+    computerShipLocations: selectComputerShips(),
+    availableGuessesComputer: allRowColumnPossibilities(10),
   })
   game.save(function (err, game) {
     if (err) {
@@ -91,44 +140,37 @@ function show(req, res) { // select a game by id
 };
 
 function update(req, res) {
-  let guess = req.body.p1_guesses;
-  let p2Play = req.body.computerPlay;
   Game.findOne({_id: req.params.game_id}, function(err, foundGame){
-    let foundGameP2Pos = foundGame.p2_positions;
-    let foundGameP1Pos = foundGame.p1_positions;
-    console.log("All guesses: ", foundGame.p2_guesses);
-    if (err) res.send(err);
-    if (guess) { // if there is a guess in req.body
-      if (isHit(foundGameP2Pos, guess)) { // if the guess matches an element in p2_positions
-        foundGame.p1_guesses = guess;
-        foundGame.p1_hits = (foundGame.p1_hits + 1); // increment p1_hits by 1
+    if (err) {
+      res.send(err);
+    } else if (req.body.playerGuesses) {
+      if (isHit(foundGame.computerShipLocations, req.body.playerGuesses)) {
+        foundGame.playerGuesses = req.body.playerGuesses;
+        foundGame.playerHits = (foundGame.playerHits + 1);
         foundGame.save(function(err, saved){
         res.send(true);
         });
       } else {
         res.send(false);
       };
-    } else if (p2Play) { // triggers p2 turn if req.body includes computerPlay: true
-      let p2RandomGuess = pickRandomElement(foundGame.p2_guesses); //selects a random guess for p2
-      console.log("Random guess ", p2RandomGuess)
-      let doesHitmatch = isHit(foundGame.p1_positions, p2RandomGuess);
-      console.log(doesHitmatch)
-      if (doesHitmatch) { // if the random guess matches p1_positions
-        foundGame.p2_hits = (foundGame.p2_hits + 1);
-        foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
-        console.log(foundGame.p2_guesses)//remove from guesses so the guess will never repeat
-        let response = [p2RandomGuess, 'match']; // match is included currently to differentiate in FE if it was a hit
+    } else if (req.body.computerTurn) {
+      let computerRandomGuess = pickRandomElement(foundGame.availableGuessesComputer);
+      let doesGuessMatch = isHit(foundGame.playerShipLocations, computerRandomGuess);
+      if (doesGuessMatch) {
+        foundGame.computerHits = (foundGame.computerHits + 1);
+        foundGame.availableGuessesComputer = removeFromP2Guesses(foundGame.availableGuessesComputer, computerRandomGuess);
+        let response = [computerRandomGuess, 'match'];
         foundGame.save(function(err, saved){
           res.json(response);
         });
       } else {
-          foundGame.p2_guesses = removeFromP2Guesses(foundGame.p2_guesses, p2RandomGuess);
+          foundGame.availableGuessesComputer = removeFromP2Guesses(foundGame.availableGuessesComputer, computerRandomGuess);
           foundGame.save(function(err, saved){
-            res.json(p2RandomGuess);
+            res.json(computerRandomGuess);
           });
       };
     } else {
-      foundGame.p1_positions = req.body.p1_positions,
+      foundGame.playerShipLocations = req.body.playerShipLocations,
       foundGame.save(function(err, saved) {
         if(err) { console.log('error', err); }
         res.json(saved);
@@ -141,7 +183,6 @@ function destroy(req, res) {
   Game.findByIdAndRemove(req.params.game_id, function(err, deletedGame) {
     if(err) {
       res.send(err);
-      console.log("Delete error occurred", err);
     } else {
       res.send(200, `game with ID: ${req.params.game_id} was deleted!`);
     };
